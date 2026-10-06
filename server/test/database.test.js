@@ -40,7 +40,8 @@ test('MongoDB hydrates offer references and protects export history', async () =
  assert.equal((await request('/offers/'+offer._id,'PUT',{options:[{label:'Bad',price:-1}]})).status,400)
 })
 test('MongoDB gives rooming and service versions persistent identities', async () => {
- for (const [path, body] of [['/guest-lists',{name:'Demo list',type:'Group',versions:[{label:'V1',status:'Draft',guests:[]}]}],['/service-confirmations',{name:'Demo services',versions:[{label:'V1',status:'Draft',days:[]}]}]]) {
+ const company = (await request('/companies','POST',{name:'Version Demo'})).data
+ for (const [path, body] of [['/guest-lists',{name:'Demo list',company:company._id,type:'Group',versions:[{label:'V1',status:'Draft',guests:[]}]}],['/service-confirmations',{name:'Demo services',versions:[{label:'V1',status:'Draft',days:[]}]}]]) {
   const created = await request(path,'POST',body); assert.equal(created.status,201)
   assert.ok(created.data.versions[0]._id)
   assert.equal((await request(path+'/'+created.data._id)).data.versions[0]._id,created.data.versions[0]._id)
