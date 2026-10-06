@@ -1,3 +1,4 @@
+import { useAsyncAction } from '@/lib/useAsyncAction'
 import { useState } from 'react'
 import { type Offer } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,8 @@ interface Props {
 }
 
 export function StepOptions({ draft, onSave, onNext, onPrev }: Props) {
+  const { run, busy, error } = useAsyncAction()
+
   const [options, setOptions] = useState<OfferOption[]>(draft.options ?? [])
 
   function update(i: number, patch: Partial<OfferOption>) {
@@ -28,7 +31,9 @@ export function StepOptions({ draft, onSave, onNext, onPrev }: Props) {
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <fieldset disabled={busy} aria-busy={busy} className="max-w-2xl space-y-6">
+      {error && <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {busy && <p role="status" className="text-sm text-muted-foreground">Saving…</p>}
       <div>
         <h2 className="text-xl font-light tracking-tight mb-1">Pricing Options</h2>
         <p className="text-sm text-muted-foreground">
@@ -93,13 +98,13 @@ export function StepOptions({ draft, onSave, onNext, onPrev }: Props) {
       <div className="flex justify-between pt-4 border-t border-border">
         <Button variant="outline" onClick={onPrev}>← Back</Button>
         <Button
-          onClick={handleNext}
+          onClick={() => void run(handleNext)}
           disabled={options.length === 0}
           className="bg-foreground hover:bg-foreground/90"
         >
           Continue to Template →
         </Button>
       </div>
-    </div>
+    </fieldset>
   )
 }

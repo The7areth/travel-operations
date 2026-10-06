@@ -1,4 +1,4 @@
-const router = require('express').Router()
+const router = require('../http/router')()
 const GuestList = require('../models/GuestList')
 
 const populate = query => query.populate('company').populate('versions.hotel').sort({ updatedAt: -1 })
@@ -29,7 +29,8 @@ router.put('/:id', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  await GuestList.findByIdAndDelete(req.params.id)
+  const deleted = await GuestList.findByIdAndDelete(req.params.id)
+  if (!deleted) return res.status(404).json({ error: 'Record not found' })
   res.json({ ok: true })
 })
 

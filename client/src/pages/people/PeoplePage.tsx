@@ -1,3 +1,4 @@
+import { useAsyncAction } from '@/lib/useAsyncAction'
 import { useEffect, useMemo, useState } from 'react'
 import {
   createGuestList,
@@ -327,6 +328,8 @@ function downloadCsv(list: EditableGuestList, version: GuestListVersion, compani
 }
 
 export function PeoplePage() {
+  const { run, busy, error } = useAsyncAction()
+
   const [companies, setCompanies] = useState<Company[]>([])
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [lists, setLists] = useState<GuestList[]>([])
@@ -344,7 +347,7 @@ export function PeoplePage() {
     setLists(nextLists)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { void run(load) }, [])
 
   const currentVersion = editing.versions[activeVersion] ?? editing.versions[0]
   const canSave = Boolean(editing.name?.trim() && companyId(editing.company) && editing.versions.length)
@@ -360,13 +363,13 @@ export function PeoplePage() {
     else await createGuestList(payload)
     setOpen(false)
     setActiveVersion(0)
-    load()
+    await load()
   }
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this guest list?')) return
     await deleteGuestList(id)
-    load()
+    await load()
   }
 
   function editList(list: GuestList) {
@@ -439,7 +442,7 @@ export function PeoplePage() {
     a.download = `${(shareTarget.list.name || 'rooming-list').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.pdf`
     a.click()
     URL.revokeObjectURL(url)
-    load()
+    await load()
   }
 
   function mailRoomingList() {
@@ -450,7 +453,9 @@ export function PeoplePage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8" aria-busy={busy}>
+      {error && <p role="alert" className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {busy && <p role="status" className="mb-3 text-sm text-muted-foreground">Working…</p>}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-light tracking-tight">People</h1>
@@ -511,7 +516,7 @@ export function PeoplePage() {
                         <Pencil className="w-4 h-4" />
                       </Button>
                       <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleDelete(list._id)}>
+                        onClick={() => void run(() => handleDelete(list._id))}>
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -822,8 +827,9 @@ export function PeoplePage() {
           </div>
 
           <DialogFooter>
+              {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={!canSave} className="bg-foreground hover:bg-foreground/90">Save</Button>
+            <Button onClick={() => void run(handleSave)} disabled={busy || !canSave} className="bg-foreground hover:bg-foreground/90">Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -841,10 +847,10 @@ export function PeoplePage() {
               </div>
               <RoomingListPreview list={shareTarget.list} version={shareVersion} companies={companies} />
               <div className="flex flex-wrap justify-end gap-2">
-                <Button variant="outline" className="gap-1.5" onClick={copyShareText}>
+                <Button variant="outline" className="gap-1.5" onClick={() => void run(copyShareText)}>
                   <Copy className="w-4 h-4" /> {copied ? 'Copied' : 'Copy Text'}
                 </Button>
-                <Button variant="outline" className="gap-1.5" onClick={downloadRoomingListPdf} disabled={!shareTarget.list._id || !shareVersion._id}>
+                <Button variant="outline" className="gap-1.5" onClick={() => void run(downloadRoomingListPdf)} disabled={busy || !shareTarget.list._id || !shareVersion._id}>
                   <FileText className="w-4 h-4" /> Download PDF
                 </Button>
                 <Button variant="outline" className="gap-1.5" onClick={mailRoomingList}>

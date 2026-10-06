@@ -73,7 +73,7 @@ npm run build
 npm test
 ```
 
-The build type-checks the client and creates the Vite bundle. Tests exercise demo CRUD, populated offer references, missing records, real PDF responses, and HTML escaping. CI repeats the build and tests on Linux; see the live badge and [verification record](docs/verification.md).
+The build type-checks the client and creates the Vite bundle. Tests exercise demo CRUD, real MongoDB CRUD and reference hydration, validation, missing records, protected export history, real PDF responses, failure recovery, and HTML escaping. CI repeats the build and tests on Linux; see the live badge and [verification record](docs/verification.md).
 
 ## Current boundaries
 

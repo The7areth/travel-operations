@@ -1,3 +1,4 @@
+import { useAsyncAction } from '@/lib/useAsyncAction'
 import { useEffect, useState } from 'react'
 import { getTemplates, type Template, type Offer } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export function StepTemplate({ draft, offerId, onSave, onPrev, onDone }: Props) {
+  const { run, busy, error } = useAsyncAction()
+
   const [templates, setTemplates] = useState<Template[]>([])
   const [selected, setSelected] = useState<string | undefined>(
     typeof draft.template === 'object' ? (draft.template as Template)?._id : (draft.template as unknown as string)
@@ -20,15 +23,21 @@ export function StepTemplate({ draft, offerId, onSave, onPrev, onDone }: Props) 
   const [generating, setGenerating] = useState(false)
   const [generated, setGenerated] = useState(false)
 
-  useEffect(() => { getTemplates().then(setTemplates) }, [])
+  useEffect(() => { void run(async () => { setTemplates(await getTemplates()) }) }, [])
+
+  async function handleExit() {
+    if (selected) await onSave({ template: selected as any })
+    onDone()
+  }
 
   async function handleGenerate() {
     if (!offerId || !selected) return
+    setGenerated(false)
     setGenerating(true)
     try {
       await onSave({ template: selected as any })
       const res = await fetch(`/api/pdf/${offerId}`)
-      if (!res.ok) throw new Error('PDF generation failed')
+      if (!res.ok) { const body = await res.json().catch(() => null); throw new Error(body?.error || 'PDF generation failed. Please retry.') }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -43,7 +52,9 @@ export function StepTemplate({ draft, offerId, onSave, onPrev, onDone }: Props) 
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <fieldset disabled={busy} aria-busy={busy} className="max-w-2xl space-y-6">
+      {error && <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {busy && <p role="status" className="text-sm text-muted-foreground">Saving…</p>}
       <div>
         <h2 className="text-xl font-light tracking-tight mb-1">Template & Generate</h2>
         <p className="text-sm text-muted-foreground">Choose a template, then generate the PDF offer.</p>
@@ -91,18 +102,18 @@ export function StepTemplate({ draft, offerId, onSave, onPrev, onDone }: Props) 
         <div className="flex gap-3">
           <Button
             disabled={!selected || generating || !offerId}
-            onClick={handleGenerate}
+            onClick={() => void run(handleGenerate)}
             variant="outline"
             className="gap-2 border-[#b8963e] text-[#b8963e] hover:bg-[#f5edd6]"
           >
             <FileDown className="w-4 h-4" />
             {generating ? 'Generating…' : 'Generate PDF'}
           </Button>
-          <Button onClick={onDone} className="bg-foreground hover:bg-foreground/90">
+          <Button onClick={() => void run(handleExit)} className="bg-foreground hover:bg-foreground/90">
             {generated ? 'Done ✓' : 'Save & Exit'}
           </Button>
         </div>
       </div>
-    </div>
+    </fieldset>
   )
 }

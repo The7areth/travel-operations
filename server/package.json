@@ -6,7 +6,8 @@
     "seed": "node src/seed.js",
     "demo": "node src/demo/index.js",
     "test": "node --test test/*.test.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test:demo": "node --test test/demo.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -14,5 +15,8 @@
     "express": "^4.19.2",
     "mongoose": "^8.4.0",
     "puppeteer": "^22.10.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server-core": "10.4.3"
   }
 }

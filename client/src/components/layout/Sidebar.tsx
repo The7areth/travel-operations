@@ -14,17 +14,17 @@ const links = [
 
 export function Sidebar() {
   return (
-    <aside className="w-52 shrink-0 border-r border-border bg-[#faf9f7] flex flex-col h-screen sticky top-0">
+    <aside className="w-full md:w-52 shrink-0 border-b md:border-b-0 md:border-r border-border bg-[#faf9f7] flex flex-col md:h-screen md:sticky top-0">
       <div className="px-5 py-5 border-b border-border">
         <span className="text-xs font-bold tracking-[0.2em] text-[#b8963e] uppercase">Tours</span>
       </div>
-      <nav className="flex flex-col gap-0.5 p-3 flex-1">
+      <nav className="flex md:flex-col gap-0.5 p-3 flex-1 overflow-x-auto">
         {links.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) => cn(
-              'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
+              'flex shrink-0 items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
               isActive
                 ? 'bg-[#f5edd6] text-[#b8963e] font-medium border-l-2 border-[#b8963e] rounded-l-none pl-[10px]'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'

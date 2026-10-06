@@ -50,3 +50,19 @@ for (const path of ['/api/pdf/o1', '/api/pdf/guest-lists/g1/0', '/api/pdf/servic
     assert.equal(bytes.subarray(0, 5).toString(), '%PDF-'); assert.ok(bytes.length > 1000)
   })
 }
+test('invalid input is rejected and identity cannot be overwritten', async () => {
+ const opts = body => ({method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+ assert.equal((await json('/api/companies/c1',opts({name:''}))).status,400)
+ const updated = await json('/api/companies/c1',opts({_id:'changed',name:'Cedar Demo Travel'}))
+ assert.equal(updated.data._id,'c1')
+ assert.equal((await json('/api/offers/o1',opts({options:[{label:'Bad',price:-1}]}))).status,400)
+})
+test('failed PDF rendering does not add export history', async t => {
+ const puppeteer = require('puppeteer')
+ t.mock.method(puppeteer,'launch',async () => { throw new Error('Simulated browser failure') })
+ for (const [record,pdf] of [['/api/offers/o1','/api/pdf/o1'],['/api/guest-lists/g1','/api/pdf/guest-lists/g1/0'],['/api/service-confirmations/s1','/api/pdf/service-confirmations/s1/0']]) {
+  const before = (await json(record)).data.exports.length
+  assert.equal((await json(pdf)).status,500)
+  assert.equal((await json(record)).data.exports.length,before)
+ }
+})

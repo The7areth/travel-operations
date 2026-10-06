@@ -1,3 +1,4 @@
+import { useAsyncAction } from '@/lib/useAsyncAction'
 import { useEffect, useMemo, useState } from 'react'
 import {
   createServiceConfirmation,
@@ -167,6 +168,8 @@ function ServicePreview({ version }: { version: ServiceConfirmationVersion }) {
 }
 
 export function ServiceConfirmationsPage() {
+  const { run, busy, error } = useAsyncAction()
+
   const [companies, setCompanies] = useState<Company[]>([])
   const [items, setItems] = useState<ServiceConfirmation[]>([])
   const [open, setOpen] = useState(false)
@@ -178,7 +181,7 @@ export function ServiceConfirmationsPage() {
     setCompanies(nextCompanies)
     setItems(nextItems)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { void run(load) }, [])
 
   const currentVersion = editing.versions[activeVersion] ?? editing.versions[0]
   const canSave = Boolean(editing.name?.trim() && editing.versions.length)
@@ -218,13 +221,13 @@ export function ServiceConfirmationsPage() {
     else await createServiceConfirmation(data)
     setOpen(false)
     setActiveVersion(0)
-    load()
+    await load()
   }
 
   async function remove(id: string) {
     if (!confirm('Delete this service confirmation?')) return
     await deleteServiceConfirmation(id)
-    load()
+    await load()
   }
 
   async function exportPdf(item: ServiceConfirmation, versionIndex?: number) {
@@ -238,11 +241,13 @@ export function ServiceConfirmationsPage() {
     a.download = `${(item.groupReference || item.name).toLowerCase().replace(/[^a-z0-9]+/g, '-')}-service-confirmation.pdf`
     a.click()
     URL.revokeObjectURL(url)
-    load()
+    await load()
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8" aria-busy={busy}>
+      {error && <p role="alert" className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {busy && <p role="status" className="mb-3 text-sm text-muted-foreground">Working…</p>}
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-light tracking-tight">Service Confirmations</h1>
@@ -277,13 +282,13 @@ export function ServiceConfirmationsPage() {
                   <TableCell className="text-xs text-muted-foreground">{item.exports?.length ? `V${item.exports.length} / ${formatDate(item.exports[item.exports.length - 1].exportedAt)}` : '-'}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1">
-                      <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => exportPdf(item)}>
+                      <Button size="icon" variant="ghost" className="h-8 w-8" aria-label="Export service confirmation PDF" disabled={busy} onClick={() => void run(() => exportPdf(item))}>
                         <Download className="h-4 w-4" />
                       </Button>
                       <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setEditing({ ...item, versions: item.versions.length ? item.versions : [emptyVersion()] }); setActiveVersion(Math.max(0, item.versions.length - 1)); setOpen(true) }}>
                         <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8 hover:text-destructive" onClick={() => remove(item._id)}>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 hover:text-destructive" aria-label="Delete service confirmation" disabled={busy} onClick={() => void run(() => remove(item._id))}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -385,9 +390,10 @@ export function ServiceConfirmationsPage() {
             )}
           </div>
           <DialogFooter>
-            {editing._id && <Button variant="outline" className="gap-1.5" onClick={() => exportPdf(editing as ServiceConfirmation, activeVersion)}><FileText className="h-4 w-4" /> Export PDF</Button>}
+              {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+            {editing._id && <Button variant="outline" className="gap-1.5" onClick={() => void run(() => exportPdf(editing as ServiceConfirmation, activeVersion))}><FileText className="h-4 w-4" /> Export PDF</Button>}
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={save} disabled={!canSave} className="bg-foreground hover:bg-foreground/90">Save</Button>
+            <Button onClick={() => void run(save)} disabled={busy || !canSave} className="bg-foreground hover:bg-foreground/90">Save</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

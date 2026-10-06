@@ -165,7 +165,8 @@
               "checkOut": "2026-11-03",
               "nights": "2"
             }
-          ]
+          ],
+          "_id": "g1-v1"
         }
       ],
       "exports": []
@@ -207,7 +208,8 @@
               ]
             }
           ],
-          "notes": "All names, bookings and prices are fictional."
+          "notes": "All names, bookings and prices are fictional.",
+          "_id": "s1-v1"
         }
       ],
       "exports": []

@@ -1,4 +1,4 @@
-const router = require('express').Router()
+const router = require('../http/router')()
 
 const DIRECT_IMAGE_HOSTS = new Set([
   'images.unsplash.com',

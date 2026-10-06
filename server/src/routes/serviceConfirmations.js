@@ -1,4 +1,4 @@
-const router = require('express').Router()
+const router = require('../http/router')()
 const ServiceConfirmation = require('../models/ServiceConfirmation')
 
 const populate = query => query.populate('company').sort({ updatedAt: -1 })
@@ -28,7 +28,8 @@ router.put('/:id', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  await ServiceConfirmation.findByIdAndDelete(req.params.id)
+  const deleted = await ServiceConfirmation.findByIdAndDelete(req.params.id)
+  if (!deleted) return res.status(404).json({ error: 'Record not found' })
   res.json({ ok: true })
 })
 

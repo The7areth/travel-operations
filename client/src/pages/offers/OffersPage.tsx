@@ -1,3 +1,4 @@
+import { useAsyncAction } from '@/lib/useAsyncAction'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getOffers, deleteOffer, type Offer } from '@/lib/api'
@@ -8,22 +9,23 @@ import { formatDate } from '@/lib/utils'
 import { Plus, Trash2, FileDown } from 'lucide-react'
 
 export function OffersPage() {
+  const { run, busy, error } = useAsyncAction()
+
   const [offers, setOffers] = useState<Offer[]>([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   async function load() {
     setLoading(true)
-    setOffers(await getOffers())
-    setLoading(false)
+    try { setOffers(await getOffers()) } finally { setLoading(false) }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { void run(load) }, [])
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this offer?')) return
     await deleteOffer(id)
-    load()
+    await load()
   }
 
   async function handlePdf(id: string) {
@@ -36,11 +38,13 @@ export function OffersPage() {
     a.download = `offer-${id}.pdf`
     a.click()
     URL.revokeObjectURL(url)
-    load()
+    await load()
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8" aria-busy={busy}>
+      {error && <p role="alert" className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {busy && <p role="status" className="mb-3 text-sm text-muted-foreground">Working…</p>}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-light tracking-tight">Offers</h1>
@@ -100,7 +104,7 @@ export function OffersPage() {
                     <Button
                       size="icon" variant="ghost"
                       className="h-8 w-8 text-muted-foreground hover:text-[#b8963e]"
-                      onClick={() => handlePdf(offer._id)}
+                      onClick={() => void run(() => handlePdf(offer._id))}
                       title="Download PDF"
                     >
                       <FileDown className="w-4 h-4" />
@@ -108,7 +112,7 @@ export function OffersPage() {
                     <Button
                       size="icon" variant="ghost"
                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => handleDelete(offer._id)}
+                      onClick={() => void run(() => handleDelete(offer._id))}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

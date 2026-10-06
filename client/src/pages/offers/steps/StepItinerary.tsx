@@ -1,3 +1,4 @@
+import { useAsyncAction } from '@/lib/useAsyncAction'
 import { useEffect, useState } from 'react'
 import { getDestinations, type DayActivity, type Destination, type Offer } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -255,12 +256,14 @@ function draftDays(days: Offer['days'] | undefined): Day[] {
 }
 
 export function StepItinerary({ draft, onSave, onNext, onPrev }: Props) {
+  const { run, busy, error } = useAsyncAction()
+
   const [destinations, setDestinations] = useState<Destination[]>([])
   const [days, setDays] = useState<Day[]>(draftDays(draft.days))
 
   const sensors = useSensors(useSensor(PointerSensor))
 
-  useEffect(() => { getDestinations().then(setDestinations) }, [])
+  useEffect(() => { void run(async () => { setDestinations(await getDestinations()) }) }, [])
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
@@ -276,7 +279,9 @@ export function StepItinerary({ draft, onSave, onNext, onPrev }: Props) {
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <fieldset disabled={busy} aria-busy={busy} className="max-w-3xl space-y-6">
+      {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+      {busy && <p role="status">Saving…</p>}
       <div>
         <h2 className="text-xl font-light tracking-tight mb-1">Itinerary</h2>
         <p className="text-sm text-muted-foreground">Build the journey, then select activity price options for each day.</p>
@@ -312,10 +317,10 @@ export function StepItinerary({ draft, onSave, onNext, onPrev }: Props) {
 
       <div className="flex justify-between pt-4 border-t border-border">
         <Button variant="outline" onClick={onPrev}>Back</Button>
-        <Button onClick={handleNext} className="bg-foreground hover:bg-foreground/90">
+        <Button onClick={() => void run(handleNext)} className="bg-foreground hover:bg-foreground/90">
           Continue to Options
         </Button>
       </div>
-    </div>
+    </fieldset>
   )
 }

@@ -1,3 +1,4 @@
+import { useAsyncAction } from '@/lib/useAsyncAction'
 import { useEffect, useState } from 'react'
 import { getCompanies, getPeople, createPerson, type Company, type Person, type Offer } from '@/lib/api'
 import { Button } from '@/components/ui/button'
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export function StepCompany({ draft, onSave, onNext }: Props) {
+  const { run, busy, error } = useAsyncAction()
+
   const [companies, setCompanies] = useState<Company[]>([])
   const [people, setPeople] = useState<Person[]>([])
   const [companySearch, setCompanySearch] = useState('')
@@ -28,8 +31,7 @@ export function StepCompany({ draft, onSave, onNext }: Props) {
   const [addingPerson, setAddingPerson] = useState(false)
 
   useEffect(() => {
-    getCompanies().then(setCompanies)
-    getPeople().then(setPeople)
+    void run(async () => { const [companies, people] = await Promise.all([getCompanies(), getPeople()]); setCompanies(companies); setPeople(people) })
   }, [])
 
   const filteredCompanies = companies.filter(c =>
@@ -61,7 +63,9 @@ export function StepCompany({ draft, onSave, onNext }: Props) {
   }
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <fieldset disabled={busy} aria-busy={busy} className="max-w-2xl space-y-8">
+      {error && <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {busy && <p role="status" className="text-sm text-muted-foreground">Saving…</p>}
       <div>
         <h2 className="text-xl font-light tracking-tight mb-1">Company & People</h2>
         <p className="text-sm text-muted-foreground">Select the client company and travellers for this offer.</p>
@@ -124,7 +128,7 @@ export function StepCompany({ draft, onSave, onNext }: Props) {
             <Input placeholder="Full name *" value={newPersonName} onChange={e => setNewPersonName(e.target.value)} />
             <Input placeholder="Email" value={newPersonEmail} onChange={e => setNewPersonEmail(e.target.value)} />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleAddPerson} className="bg-foreground hover:bg-foreground/90">Add</Button>
+              <Button size="sm" onClick={() => void run(handleAddPerson)} className="bg-foreground hover:bg-foreground/90">Add</Button>
               <Button size="sm" variant="ghost" onClick={() => setAddingPerson(false)}>Cancel</Button>
             </div>
           </div>
@@ -165,13 +169,13 @@ export function StepCompany({ draft, onSave, onNext }: Props) {
 
       <div className="flex justify-end pt-4 border-t border-border">
         <Button
-          onClick={handleNext}
+          onClick={() => void run(handleNext)}
           disabled={!selectedCompany}
           className="bg-foreground hover:bg-foreground/90"
         >
           Continue to Itinerary →
         </Button>
       </div>
-    </div>
+    </fieldset>
   )
 }

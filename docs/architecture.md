@@ -29,9 +29,8 @@ The client API wrapper centralizes JSON requests and TypeScript interfaces. Reac
 - PDF layouts are fixed; stored template blocks do not drive rendering.
 - Export records contain metadata, not the exact PDF bytes or content hashes.
 - Export sequence numbers derived from array length are not concurrency-safe.
-- Offline export metadata can be appended before successful PDF rendering.
-- Express 4 database CRUD routes lack comprehensive async error forwarding and consistent 404 handling.
-- Input bodies can update more fields than a production allowlist should permit.
+- Database route rejections now reach shared error handling; invalid IDs/fields return 400 and missing CRUD records return 404. Complete domain/reference validation remains future work.
+- Input validation rejects empty names, invalid prices, and update operators, and protects top-level IDs, timestamps, and export history. A comprehensive per-resource allowlist is still needed for production.
 - Remote images and Chromium resource use require a strict policy before untrusted access.
 - Chromium is launched per export and uses inherited no-sandbox options; production requires an isolated, constrained renderer with an appropriate sandbox configuration.
 - Large embedded version arrays and inline image data can grow documents and memory.

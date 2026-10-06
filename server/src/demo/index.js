@@ -13,6 +13,7 @@ for (const method of ['get', 'post', 'put', 'delete']) {
 app.get('/api/health', (_req, res) => res.json({ status: 'ready', mode: 'offline-demo', persistence: 'memory' }))
 app.use(cors())
 app.use(express.json({ limit: '15mb' }))
+app.use('/api', require('../http/input'))
 
 function normalizeImageUrl(raw) {
   const url = new URL(raw)
@@ -34,6 +35,13 @@ function extractMetaImage(html) {
 const now = new Date().toISOString()
 let seq = 100
 const id = () => String(seq++)
+app.use((req, _res, next) => {
+  if (['/api/guest-lists', '/api/service-confirmations'].some(path => req.path === path || req.path.startsWith(path + '/')) && Array.isArray(req.body?.versions)) {
+    req.body.versions = req.body.versions.map(version => ({ ...version, _id: version._id || id() }))
+  }
+  next()
+})
+
 
 function sendPdf(res, pdf, filename) {
   res.set({
@@ -229,7 +237,7 @@ app.get('/api/pdf/guest-lists/:id/:versionIndex', async (req, res) => {
   if (!version) return res.status(404).json({ error: 'Version not found' })
   const sequence = (list.exports?.length ?? 0) + 1
   const filename = `${list.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-v${sequence}.pdf`
-  list.exports = [...(list.exports ?? []), {
+  const exportInfo = {
     _id: id(),
     sequence,
     versionIndex: Number(req.params.versionIndex || 0),
@@ -237,9 +245,9 @@ app.get('/api/pdf/guest-lists/:id/:versionIndex', async (req, res) => {
     filename,
     kind: 'rooming-list-pdf',
     exportedAt: new Date().toISOString(),
-  }]
-  const exportInfo = list.exports[list.exports.length - 1]
+  }
   const pdf = await renderPdf(buildRoomingListHtml(normalizeGuestList(list), version, exportInfo), { landscape: true })
+  list.exports = [...(list.exports ?? []), exportInfo]
   sendPdf(res, pdf, filename)
 })
 
@@ -251,8 +259,8 @@ app.get('/api/pdf/service-confirmations/:id/:versionIndex', async (req, res) => 
   const sequence = (item.exports?.length ?? 0) + 1
   const filename = `${(item.groupReference || item.name).toLowerCase().replace(/[^a-z0-9]+/g, '-')}-service-confirmation-v${sequence}.pdf`
   const exportInfo = { _id: id(), sequence, label: `V${sequence}`, versionIndex: Number(req.params.versionIndex || 0), versionLabel: version.label, filename, kind: 'service-confirmation-pdf', exportedAt: new Date().toISOString() }
-  item.exports = [...(item.exports ?? []), exportInfo]
   const pdf = await renderPdf(buildServiceConfirmationHtml(item, version, exportInfo), { landscape: true })
+  item.exports = [...(item.exports ?? []), exportInfo]
   sendPdf(res, pdf, filename)
 })
 
@@ -263,24 +271,20 @@ app.get('/api/pdf/:id', async (req, res) => {
   const hydratedOffer = normalizeOffer(offer)
   const sequence = (offer.exports?.length ?? 0) + 1
   const filename = `${slug(hydratedOffer.company?.name || 'offer')}-offer-v${sequence}.pdf`
-  offer.exports = [...(offer.exports ?? []), {
+  const exportInfo = {
     _id: id(),
     sequence,
     label: `V${sequence}`,
     filename,
     kind: 'offer-pdf',
     exportedAt: new Date().toISOString(),
-  }]
-
-  const exportInfo = offer.exports[offer.exports.length - 1]
+  }
   const pdf = await renderPdf(buildOfferHtml(hydratedOffer, exportInfo))
+  offer.exports = [...(offer.exports ?? []), exportInfo]
   sendPdf(res, pdf, filename)
 })
 
-app.use((err, _req, res, _next) => {
-  console.error(err.message)
-  res.status(500).json({ error: 'Request failed; see server logs.' })
-})
+app.use(require('../http/errors'))
 if (require.main === module) {
   const port = Number(process.env.PORT || 3001)
   app.listen(port, '127.0.0.1', () => console.log(`Offline demo: http://127.0.0.1:${port} — changes reset on restart`))

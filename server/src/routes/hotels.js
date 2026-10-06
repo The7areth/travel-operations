@@ -1,4 +1,4 @@
-const router = require('express').Router()
+const router = require('../http/router')()
 const Hotel = require('../models/Hotel')
 
 router.get('/', async (_req, res) => {
@@ -16,7 +16,8 @@ router.put('/:id', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  await Hotel.findByIdAndDelete(req.params.id)
+  const deleted = await Hotel.findByIdAndDelete(req.params.id)
+  if (!deleted) return res.status(404).json({ error: 'Record not found' })
   res.json({ ok: true })
 })
 

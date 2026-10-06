@@ -60,7 +60,7 @@ Code: [ServiceConfirmation schema](../server/src/models/ServiceConfirmation.js),
 
 Text values are HTML-escaped. Attribute escaping alone is not URL validation: remote resource controls are a separate concern. Offline mode blocks remote requests while rendering. Persistent mode still needs an explicit resource policy before handling untrusted uploads/URLs.
 
-The offline helper inherited export metadata updates before rendering succeeds. A failed render may therefore leave an export entry. Persistent mode records after rendering, but parallel exports can still race on sequence assignment. These are documented limitations rather than claims of atomic audit behavior.
+Both backends append export metadata only after rendering succeeds. Form updates cannot overwrite server-owned export history. Parallel exports can still race on sequence assignment. These are documented limitations rather than claims of atomic audit behavior.
 
 Code: [shared builders](../server/src/pdf/template.js), [persistent PDF endpoints](../server/src/routes/pdf.js), [offline API](../server/src/demo/index.js).
 
@@ -76,7 +76,7 @@ The Vite proxy allows the client to use `/api` without hard-coding a backend URL
 
 ## 10. Test and inspect
 
-Run the client build, then the server suite. The tests start the demo on a random loopback port and exercise HTTP responses, mutations, reference hydration, missing records, generated PDF headers, and escaping. Database integration needs its own verification; passing a demo test does not prove MongoDB behavior.
+Run the client build, then the server suite. The tests start isolated servers on random loopback ports. Demo tests exercise mutations, reference hydration, missing records, real PDF generation, escaping, and failed-export recovery. Database tests use a temporary MongoDB instance to check persistence, schema validation, populated references, missing records, and version identities. Neither suite uses your existing database.
 
 For a short demonstration: open the sample offer, change a day note, export the offer, inspect a guest-list version, and export a service confirmation. Then show the model schemas and one PDF builder to connect the UI to its implementation.
 

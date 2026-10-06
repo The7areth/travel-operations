@@ -1,4 +1,4 @@
-const router = require('express').Router()
+const router = require('../http/router')()
 const puppeteer = require('puppeteer')
 const fs = require('fs')
 const Offer = require('../models/Offer')

@@ -1,4 +1,4 @@
-const router = require('express').Router()
+const router = require('../http/router')()
 const Person = require('../models/Person')
 
 router.get('/', async (req, res) => {
@@ -8,10 +8,13 @@ router.post('/', async (req, res) => {
   res.status(201).json(await Person.create(req.body))
 })
 router.put('/:id', async (req, res) => {
-  res.json(await Person.findByIdAndUpdate(req.params.id, req.body, { new: true }))
+  const updated = await Person.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+  if (!updated) return res.status(404).json({ error: 'Record not found' })
+  res.json(updated)
 })
 router.delete('/:id', async (req, res) => {
-  await Person.findByIdAndDelete(req.params.id)
+  const deleted = await Person.findByIdAndDelete(req.params.id)
+  if (!deleted) return res.status(404).json({ error: 'Record not found' })
   res.json({ ok: true })
 })
 module.exports = router

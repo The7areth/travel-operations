@@ -52,4 +52,4 @@ npm run build
 npm test
 ```
 
-The automated suite creates an isolated demo server on a free port. It never connects to MongoDB or your original project's data.
+The full suite starts isolated demo and MongoDB-backed servers on free ports. It downloads a MongoDB test binary on first use and starts a temporary database; it never uses your configured database or original project data. Use `npm run test:demo` for database-free checks after installation.

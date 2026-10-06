@@ -1,4 +1,4 @@
-const router = require('express').Router()
+const router = require('../http/router')()
 const Template = require('../models/Template')
 
 router.get('/', async (req, res) => {
@@ -8,10 +8,13 @@ router.post('/', async (req, res) => {
   res.status(201).json(await Template.create(req.body))
 })
 router.put('/:id', async (req, res) => {
-  res.json(await Template.findByIdAndUpdate(req.params.id, req.body, { new: true }))
+  const updated = await Template.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+  if (!updated) return res.status(404).json({ error: 'Record not found' })
+  res.json(updated)
 })
 router.delete('/:id', async (req, res) => {
-  await Template.findByIdAndDelete(req.params.id)
+  const deleted = await Template.findByIdAndDelete(req.params.id)
+  if (!deleted) return res.status(404).json({ error: 'Record not found' })
   res.json({ ok: true })
 })
 module.exports = router
