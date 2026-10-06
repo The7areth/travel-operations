@@ -1,0 +1,216 @@
+{
+  "people": [
+    {
+      "_id": "p1",
+      "name": "Alex Demo",
+      "email": "alex@example.com",
+      "properties": {
+        "dietary": "Vegetarian"
+      }
+    },
+    {
+      "_id": "p2",
+      "name": "Sam Example",
+      "email": "sam@example.com",
+      "properties": {}
+    }
+  ],
+  "companies": [
+    {
+      "_id": "c1",
+      "name": "Cedar Demo Travel",
+      "properties": {
+        "segment": "Small groups"
+      }
+    }
+  ],
+  "hotels": [
+    {
+      "_id": "h1",
+      "name": "Demo Oasis Hotel",
+      "city": "AlUla",
+      "country": "Saudi Arabia",
+      "emails": [
+        "hotel@example.com"
+      ],
+      "mealBasis": "B&B",
+      "roomTypes": [
+        {
+          "name": "Standard Twin"
+        }
+      ],
+      "contractNotes": "Fictional demonstration; no commercial agreement."
+    }
+  ],
+  "destinations": [
+    {
+      "_id": "d1",
+      "name": "AlUla",
+      "country": "Saudi Arabia",
+      "description": "A sample heritage itinerary. All prices are illustrative.",
+      "coverImage": "",
+      "properties": {
+        "highlights": "Heritage walk and desert viewpoints"
+      },
+      "activities": [
+        {
+          "_id": "a1",
+          "name": "Heritage walk",
+          "description": "Illustrative guided visit",
+          "duration": "2 hours",
+          "prices": [
+            {
+              "_id": "price1",
+              "label": "Private group",
+              "price": 120,
+              "currency": "USD"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "_id": "t1",
+      "name": "Demo journey",
+      "blocks": [
+        {
+          "type": "cover",
+          "content": "A journey for {{company.name}}",
+          "order": 0
+        }
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "_id": "o1",
+      "company": "c1",
+      "people": [
+        "p1",
+        "p2"
+      ],
+      "template": "t1",
+      "status": "Draft",
+      "days": [
+        {
+          "destinations": [
+            "d1"
+          ],
+          "notes": "Arrive, check in, and explore the heritage district.",
+          "activities": [
+            {
+              "destination": "d1",
+              "activityId": "a1",
+              "priceId": "price1",
+              "activityName": "Heritage walk",
+              "optionLabel": "Private group",
+              "description": "Illustrative guided visit",
+              "price": 120,
+              "currency": "USD"
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "label": "Classic",
+          "description": "Two nights, breakfast, and a guided visit. Illustrative price.",
+          "price": 850
+        },
+        {
+          "label": "Private",
+          "description": "Private transfers and an upgraded room. Illustrative price.",
+          "price": 1250
+        }
+      ],
+      "exports": []
+    }
+  ],
+  "guestLists": [
+    {
+      "_id": "g1",
+      "name": "Demo heritage group",
+      "company": "c1",
+      "type": "Group",
+      "versions": [
+        {
+          "label": "V1 - planning",
+          "status": "Partial",
+          "hotel": "h1",
+          "hotelName": "Demo Oasis Hotel",
+          "hotelEmail": "hotel@example.com",
+          "groupReference": "DEMO-001",
+          "mealBasis": "B&B",
+          "totalRooms": "1",
+          "totalGuests": "2",
+          "notes": "Fictional guests for demonstration.",
+          "guests": [
+            {
+              "fullName": "Alex Demo",
+              "roomNumber": "101",
+              "roomOccupancy": "Twin",
+              "roomType": "Standard Twin",
+              "checkIn": "2026-11-01",
+              "checkOut": "2026-11-03",
+              "nights": "2"
+            },
+            {
+              "fullName": "Sam Example",
+              "roomNumber": "101",
+              "roomOccupancy": "Twin",
+              "roomType": "Standard Twin",
+              "checkIn": "2026-11-01",
+              "checkOut": "2026-11-03",
+              "nights": "2"
+            }
+          ]
+        }
+      ],
+      "exports": []
+    }
+  ],
+  "serviceConfirmations": [
+    {
+      "_id": "s1",
+      "name": "Demo heritage services",
+      "company": "c1",
+      "groupReference": "DEMO-001",
+      "tourDates": "1\u20133 November 2026",
+      "sendBy": "Demo coordinator",
+      "versions": [
+        {
+          "label": "V1",
+          "status": "Draft",
+          "guests": "Alex Demo and Sam Example",
+          "totalTravelers": "2",
+          "rooms": "1 twin",
+          "client": "Cedar Demo Travel",
+          "destination": "AlUla",
+          "emergencyContact": "demo@example.com",
+          "dietaryNotes": "One vegetarian meal",
+          "days": [
+            {
+              "title": "Day 1 \u2014 Arrival",
+              "rows": [
+                {
+                  "type": "Transfer",
+                  "description": "Illustrative airport pickup; no real booking.",
+                  "status": "Pending"
+                },
+                {
+                  "type": "Hotel",
+                  "description": "Demo Oasis Hotel, twin room",
+                  "status": "Confirmed"
+                }
+              ]
+            }
+          ],
+          "notes": "All names, bookings and prices are fictional."
+        }
+      ],
+      "exports": []
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "tours",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "install:all": "npm i && npm i --prefix server && npm i --prefix client",
+    "seed": "npm run seed --prefix server",
+    "demo": "concurrently \"npm run demo --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "test": "npm test --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
