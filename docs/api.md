@@ -30,4 +30,4 @@ curl -X POST http://127.0.0.1:3001/api/companies \
 curl http://127.0.0.1:3001/api/pdf/o1 -o offer.pdf
 ```
 
-PDF GET requests have a side effect: they append export metadata. A production redesign should use POST for creating an export and GET for downloading the created resource. Error handling differs between modes; do not assume database and demo contracts are completely identical. Client interfaces are in `client/src/lib/api.ts`, persistent schemas in `server/src/models`.
+PDF GET requests have a side effect: they append export metadata. A production redesign should use POST for creating an export and GET for downloading the created resource. The two backends share API paths, with differences in schema validation and persistence documented in the architecture guide. Client interfaces are in `client/src/lib/api.ts`, persistent schemas in `server/src/models`.

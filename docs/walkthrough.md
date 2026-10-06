@@ -4,13 +4,13 @@
 
 Travel operations involve related information that is often copied between offers, rooming lists, and service confirmations. This project models those records in one application and renders documents from structured data. The portfolio edition uses fictional content, so a reviewer can explore the workflow without company or traveler records.
 
-The engineering story is translating an operational process into reusable entities, a multi-step interface, API operations, and generated documents. Any claim of business adoption or time saved needs separate evidence; the repository itself demonstrates the implementation.
+The application translates an operational process into reusable entities, a multi-step interface, API operations, and generated documents. The walkthrough follows those connections from the interface to storage and PDF output.
 
 ## 2. Start with the offline mode
 
 Follow [setup](setup.md), run `npm run demo`, and open the Offers screen. The server loads [fixtures.json](../server/src/demo/fixtures.json), stamps the records with creation/update times, and exposes Express endpoints. Arrays hold the records in process memory. A restart creates fresh arrays from the fixture.
 
-The original offline helper has been packaged as a normal server entry point. The publication copy replaces its operational-looking examples with fictional data, adds a health endpoint, and forwards rejected asynchronous requests to error middleware. The original local source remains separate.
+The offline mode has its own server entry point, fictional fixtures, a health endpoint, and shared asynchronous error handling.
 
 Offline here means no database or network is needed for the bundled workflow after installation. It does not mean service-worker caching, durable local storage, or a native desktop app.
 
@@ -60,13 +60,13 @@ Code: [ServiceConfirmation schema](../server/src/models/ServiceConfirmation.js),
 
 Text values are HTML-escaped. Attribute escaping alone is not URL validation: remote resource controls are a separate concern. Offline mode blocks remote requests while rendering. Persistent mode still needs an explicit resource policy before handling untrusted uploads/URLs.
 
-Both backends append export metadata only after rendering succeeds. Form updates cannot overwrite server-owned export history. Parallel exports can still race on sequence assignment. These are documented limitations rather than claims of atomic audit behavior.
+Both backends append export metadata only after rendering succeeds. Form updates cannot overwrite server-owned export history. Parallel exports can still race on sequence assignment. Atomic export sequencing is a planned improvement.
 
 Code: [shared builders](../server/src/pdf/template.js), [persistent PDF endpoints](../server/src/routes/pdf.js), [offline API](../server/src/demo/index.js).
 
 ## 8. Template editing versus document layout
 
-Templates and their blocks are editable records and can be selected for offers. However, the current `buildOfferHtml` function uses a fixed layout and does not interpret the stored template blocks. This distinction matters during a demo: show the functioning PDF layouts, and describe block-driven rendering as future work rather than an existing feature.
+Templates and their blocks are editable records and can be selected for offers. However, the current `buildOfferHtml` function uses a fixed layout and does not interpret the stored template blocks. Block-driven rendering is a planned extension to the existing PDF workflow.
 
 ## 9. Client/server separation
 
@@ -82,6 +82,6 @@ For a short demonstration: open the sample offer, change a day note, export the 
 
 ## 11. What to improve next
 
-Prioritize a shared service/storage layer with parity tests, input validation and error handling, immutable accepted-offer snapshots, reliable export sequence allocation, and block-driven templates. Before real deployment add authentication, permissions, resource restrictions, backups, operational monitoring, and privacy controls. These are future requirements, not delivered features.
+Prioritize a shared service/storage layer with parity tests, input validation and error handling, immutable accepted-offer snapshots, reliable export sequence allocation, and block-driven templates. Before real deployment add authentication, permissions, resource restrictions, backups, operational monitoring, and privacy controls. These milestones extend the current release.
 
 See [architecture and tradeoffs](architecture.md) for the design review and [API guide](api.md) for the endpoint map.

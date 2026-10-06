@@ -4,7 +4,7 @@
 
 **Plan an offer, organize the guests, and generate the documents from one workspace.**
 
-A full-stack travel operations portfolio by **[Hareth Al-Fawaz](https://github.com/The7areth)**. React and TypeScript provide the workspace; Express handles the API; MongoDB provides the persistent mode; Puppeteer turns structured records into PDFs. A separate in-memory demo makes the workflow easy to try without a database.
+A full-stack travel operations application by **[Hareth Al-Fawaz](https://github.com/The7areth)**. React and TypeScript provide the workspace; Express handles the API; MongoDB provides the persistent mode; Puppeteer turns structured records into PDFs. A separate in-memory demo makes the workflow easy to try without a database.
 
 [Complete walkthrough](docs/walkthrough.md) · [Run locally](docs/setup.md) · [API guide](docs/api.md) · [Architecture and tradeoffs](docs/architecture.md) · [Verification](docs/verification.md)
 
@@ -17,7 +17,7 @@ A full-stack travel operations portfolio by **[Hareth Al-Fawaz](https://github.c
 | Prepare operations | Maintain versioned rooming lists and service confirmations |
 | Generate documents | Export offer, rooming-list, and service-confirmation PDFs with export metadata |
 
-The repository demonstrates domain modeling, multi-step forms, REST integration, embedded document versions, reference hydration, and HTML-to-PDF rendering. It does not claim measured time savings or production deployment.
+The repository demonstrates domain modeling, multi-step forms, REST integration, embedded document versions, reference hydration, and HTML-to-PDF rendering.
 
 ## Try the offline demo
 
@@ -75,10 +75,12 @@ npm test
 
 The build type-checks the client and creates the Vite bundle. Tests exercise demo CRUD, real MongoDB CRUD and reference hydration, validation, missing records, protected export history, real PDF responses, failure recovery, and HTML escaping. CI repeats the build and tests on Linux; see the live badge and [verification record](docs/verification.md).
 
-## Current boundaries
+## Project scope and deployment
 
-This is a **local portfolio application**, with no authentication or role-based access. Do not expose the API to the public internet or use it with real traveler information as-is. The template editor stores blocks, but the current PDF renderer uses fixed layouts rather than interpreting those blocks. Version records are editable embedded documents, not immutable audit history. Exports record metadata, not archived copies of the PDF bytes. See the [architecture guide](docs/architecture.md) for the remaining engineering tradeoffs.
+This release supports **local evaluation and development**, with an offline demo and a persistent MongoDB mode. A hosted, multi-user deployment requires authentication, role-based permissions, and the operational controls described in the [architecture guide](docs/architecture.md); those controls are outside the current release.
+
+The application generates three document types using fixed PDF layouts, stores editable operational versions, and records export metadata. The next development milestones are block-driven template rendering, immutable approval snapshots, and archived PDF outputs.
 
 ## Contributing and reuse
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). No open-source license is granted in this publication; contact the author about reuse. Third-party dependencies retain their own licenses. All bundled demo records are independently fictionalized.
+See [CONTRIBUTING.md](CONTRIBUTING.md). The source is published for review; contact the author for reuse permission. Third-party dependencies retain their own licenses. All bundled demo records are independently fictionalized.

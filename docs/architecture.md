@@ -24,7 +24,7 @@ Embedding favors loading a whole operational document. References favor reuse. T
 
 The client API wrapper centralizes JSON requests and TypeScript interfaces. React components own form state. There is no offline queue, multi-user synchronization, authentication, or role model. TypeScript catches static mistakes, but server-side runtime validation remains necessary.
 
-## Known limitations
+## Current design and deployment considerations
 
 - PDF layouts are fixed; stored template blocks do not drive rendering.
 - Export records contain metadata, not the exact PDF bytes or content hashes.
@@ -35,7 +35,7 @@ The client API wrapper centralizes JSON requests and TypeScript interfaces. Reac
 - Chromium is launched per export and uses inherited no-sandbox options; production requires an isolated, constrained renderer with an appropriate sandbox configuration.
 - Large embedded version arrays and inline image data can grow documents and memory.
 - There is no automatic currency conversion or independently verified accounting calculation.
-- No benchmark establishes time savings, throughput, availability, or production use.
+- Validation currently covers functional behavior. Workload benchmarks and operational metrics are planned for a hosted deployment.
 
 ## Prioritized next steps
 
@@ -45,4 +45,4 @@ The client API wrapper centralizes JSON requests and TypeScript interfaces. Reac
 4. Connect the template block editor to the renderer with escaping and allowlisted content.
 5. Add authentication, roles, CSRF/origin policies where applicable, resource limits, logs, backups, and dependency maintenance before deployment.
 
-A production architecture is future work. The portfolio demonstrates the current operational workflows and the decisions needed to evolve them responsibly.
+The current architecture supports local evaluation and persistent development. The milestones above define the path to a hosted, multi-user service.

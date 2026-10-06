@@ -13,13 +13,13 @@ npm ci --prefix client
 npm run demo
 ```
 
-Visit http://localhost:5173. The server listens on loopback port 3001. Vite proxies `/api` to that server. Do not run the MongoDB server simultaneously.
+Visit http://localhost:5173. The server listens on loopback port 3001. Vite proxies `/api` to that server. Run one API mode at a time because both use port 3001.
 
 The fictional offer is ready to edit or export. People contains the rooming-list workflow; Service Conf. contains service-confirmation versions. Changes disappear on server restart. A browser refresh alone does not reset them.
 
 ## Persistent MongoDB mode
 
-Start your own local MongoDB service. Create `server/.env` from `server/.env.example`, keeping the dedicated `travel_portfolio_demo` database. Never point the seed at an operational database.
+Start your own local MongoDB service. Create `server/.env` from `server/.env.example`, keeping the dedicated `travel_portfolio_demo` database. The seed is restricted to an empty, dedicated demo database.
 
 ```sh
 npm run seed
@@ -28,11 +28,11 @@ npm run dev
 
 The seed refuses another database name and refuses nonempty collections. It does not delete records. Its insertion sequence is not transactional; if interrupted, use a new empty demo database after reviewing what happened. MongoDB mode persists changes across restarts.
 
-`npm run build` creates the client bundle, but does not configure a production web server. A deployed server would need static hosting, SPA fallback, and an API reverse proxy, alongside authentication and the other controls in the architecture guide.
+`npm run build` creates the client bundle. Hosted deployment additionally requires static hosting, SPA fallback, an API reverse proxy, authentication, and the operational controls in the architecture guide.
 
 ## PDF generation
 
-Puppeteer normally uses its downloaded browser. The server also supports `PUPPETEER_EXECUTABLE_PATH`. On macOS it can locate installed Chrome or Brave. Do not assume Firefox-based executables are compatible. Both backends close the browser in a `finally` block.
+Puppeteer normally uses its downloaded browser. The server also supports `PUPPETEER_EXECUTABLE_PATH`. On macOS it can locate installed Chrome or Brave. Use a Chromium-compatible executable. Both backends close the browser in a `finally` block.
 
 Offline PDF generation deliberately blocks remote resources. Use the included image-free fixture or uploaded data images. Remote image resolution and remote images in the MongoDB mode require network access.
 
